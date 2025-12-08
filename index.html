@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정찬혁 선생님 시간표</title>
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 800px; width: 100%; }
+        h1 { text-align: center; color: #333; margin-bottom: 5px; }
+        .update-time { text-align: center; color: #888; font-size: 0.85em; margin-bottom: 20px; }
+        
+        /* 스크롤 가능한 탭 */
+        .tabs { display: flex; overflow-x: auto; gap: 10px; margin-bottom: 20px; padding-bottom: 5px; }
+        .tab { 
+            padding: 10px 20px; text-align: center; border-radius: 20px; 
+            color: #555; font-weight: bold; background: #eee; cursor: pointer; 
+            white-space: nowrap; flex-shrink: 0; transition: 0.3s;
+        }
+        .tab.active { background: #4a90e2; color: white; box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3); }
+        
+        .content { display: none; }
+        .content.active { display: block; animation: fadeIn 0.5s; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        th, td { border: 1px solid #e1e4e8; padding: 12px 8px; text-align: center; font-size: 0.95rem; }
+        th { background-color: #4a90e2; color: white; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        
+        .period { background-color: #edf2f7; font-weight: bold; color: #4a5568; width: 40px; }
+        .subject { font-weight: bold; display: block; color: #2d3748; }
+        .class-info { font-size: 0.8em; color: #718096; display: block; margin-top: 2px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+    <script>
+        function openTab(event, tabId) {
+            var i, contents, tabs;
+            
+            // 모든 내용 숨기기
+            contents = document.getElementsByClassName("content");
+            for (i = 0; i < contents.length; i++) { contents[i].classList.remove("active"); }
+            
+            // 모든 탭 비활성화
+            tabs = document.getElementsByClassName("tab");
+            for (i = 0; i < tabs.length; i++) { tabs[i].classList.remove("active"); }
+            
+            // 선택된 것만 활성화
+            document.getElementById(tabId).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 송양고등학교 정찬혁T</h1>
+        <div class="update-time">최종 업데이트: 2025-12-08 17:31</div>
+
+        <div class="tabs">
+            
+            <div class="tab active" onclick="openTab(event, 'week0')">이번 주</div>
+        
+            <div class="tab " onclick="openTab(event, 'week1')">다음 주</div>
+        
+        </div>
+
+        
+        <div id="week0" class="content active">
+            <table>
+                <thead>
+                    <tr><th width="10%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class='period'>1</td><td></td><td></td><td><span class='subject'>영어</span><span class='class-info'>1-11</span></td><td></td><td></td></tr><tr><td class='period'>2</td><td><span class='subject'>진영</span><span class='class-info'>2-7</span></td><td><span class='subject'>영어</span><span class='class-info'>1-11</span></td><td></td><td></td><td></td></tr><tr><td class='period'>3</td><td><span class='subject'>영어</span><span class='class-info'>1-11</span></td><td></td><td></td><td></td><td></td></tr><tr><td class='period'>4</td><td></td><td><span class='subject'>영어</span><span class='class-info'>1-12</span></td><td><span class='subject'>영어</span><span class='class-info'>1-5</span></td><td></td><td></td></tr><tr><td class='period'>5</td><td></td><td><span class='subject'>영어</span><span class='class-info'>1-5</span></td><td></td><td></td><td></td></tr><tr><td class='period'>6</td><td><span class='subject'>영어</span><span class='class-info'>1-5</span></td><td></td><td></td><td></td><td></td></tr><tr><td class='period'>7</td><td><span class='subject'>영어</span><span class='class-info'>1-12</span></td><td></td><td></td><td></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="week1" class="content ">
+            <table>
+                <thead>
+                    <tr><th width="10%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class='period'>1</td><td></td><td></td><td></td><td></td><td><span class='subject'>영어</span><span class='class-info'>1-11</span></td></tr><tr><td class='period'>2</td><td></td><td></td><td></td><td><span class='subject'>영어</span><span class='class-info'>1-12</span></td><td></td></tr><tr><td class='period'>3</td><td></td><td></td><td></td><td><span class='subject'>영어</span><span class='class-info'>1-11</span></td><td></td></tr><tr><td class='period'>4</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td class='period'>5</td><td></td><td></td><td></td><td><span class='subject'>영어</span><span class='class-info'>1-5</span></td><td></td></tr><tr><td class='period'>6</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td class='period'>7</td><td></td><td></td><td></td><td></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+</body>
+</html>
