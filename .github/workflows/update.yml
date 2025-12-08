@@ -23,8 +23,13 @@ jobs:
       - name: 라이브러리 설치
         run: pip install pycomcigan
 
+      # [중요] 파일 위치 확인용 디버깅 단계 (로그에서 확인 가능)
+      - name: 현재 폴더 파일 목록 확인
+        run: ls -R
+
+      # [중요] python 명령어 추가
       - name: 시간표 갱신 실행
-        run: make_html.py
+        run: python make_html.py
         
       - name: 결과물 저장 (Commit & Push)
         run: |
