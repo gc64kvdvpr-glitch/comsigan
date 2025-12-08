@@ -3,34 +3,40 @@ from pycomcigan import TimeTable
 import datetime
 
 # ==========================================
-# 🎨 반별 색상 설정 (여기서 색을 바꿀 수 있어요!)
+# ⏰ 교시별 시작 시간 설정
 # ==========================================
-# 특정 반에 원하는 색을 직접 지정하고 싶다면 여기에 적으세요.
-# 색상 코드표: https://htmlcolorcodes.com/
-SPECIFIC_COLORS = {
-    "3-5": "#FFEBEE", # 예: 3학년 5반은 연한 빨강
-    "1-2": "#E3F2FD", # 예: 1학년 2반은 연한 파랑
+START_TIMES = {
+    1: "09:00",
+    2: "10:00",
+    3: "11:00",
+    4: "12:00",
+    5: "13:50",
+    6: "14:50",
+    7: "15:50",
+    8: "16:50" # 혹시 몰라 8교시도 넣어둠
 }
 
-# 지정하지 않은 반들은 아래 색상들 중에서 자동으로 골라집니다. (파스텔톤)
+# ==========================================
+# 🎨 반별 색상 설정
+# ==========================================
+SPECIFIC_COLORS = {
+    "3-5": "#FFEBEE", 
+    "1-2": "#E3F2FD", 
+}
+
 AUTO_COLORS = [
     "#F3E5F5", "#E8F5E9", "#FFFDE7", "#FBE9E7", "#E0F7FA", 
     "#FFF3E0", "#F1F8E9", "#ECEFF1", "#F9FBE7", "#EFEBE9"
 ]
 
 def get_class_color(class_name):
-    """반 이름(예: '3-5')에 맞는 배경색을 가져옵니다."""
-    # 1. 직접 지정한 색이 있으면 그걸 사용
     if class_name in SPECIFIC_COLORS:
         return SPECIFIC_COLORS[class_name]
-    
-    # 2. 없으면 반 이름을 숫자로 바꿔서 자동 색상 배정 (항상 같은 반은 같은 색)
-    # 예: '3-5'라는 글자를 숫자로 변환해서 리스트 인덱스로 사용
     hash_val = sum(ord(c) for c in class_name) 
     return AUTO_COLORS[hash_val % len(AUTO_COLORS)]
 
 # ==========================================
-# 노션 위젯용 템플릿
+# 노션 위젯용 템플릿 (시간 표시 추가됨)
 # ==========================================
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -67,10 +73,28 @@ HTML_TEMPLATE = """
         
         td {{ 
             border-bottom: 1px solid #eee; border-right: 1px solid #eee;
-            padding: 4px 2px; text-align: center; vertical-align: middle; height: 38px;
+            padding: 4px 2px; text-align: center; vertical-align: middle; height: 42px;
         }}
 
-        .period {{ background-color: #f8f9fa; color: #868e96; font-size: 11px; font-weight: bold; width: 30px; }}
+        /* 교시 열 스타일 수정 */
+        .period {{ 
+            background-color: #f8f9fa; 
+            color: #495057; 
+            font-size: 12px; 
+            font-weight: bold; 
+            width: 35px; 
+            line-height: 1.1; /* 줄 간격 좁게 */
+        }}
+        
+        /* 시작 시간 스타일 (추가됨) */
+        .time-info {{
+            display: block;
+            font-size: 9px;
+            color: #adb5bd;
+            font-weight: normal;
+            margin-top: 2px;
+        }}
+
         .subject {{ font-size: 13px; font-weight: 600; color: #333; display: block; line-height: 1.2; }}
         .class-info {{ font-size: 10px; color: #666; display: block; margin-top: 2px; opacity: 0.8; }}
         
@@ -122,11 +146,13 @@ async def get_week_data(school_name, target_teacher, week_num):
 
         rows = ""
         for period in range(1, 8):
-            rows += f"<tr><td class='period'>{period}</td>"
+            # [변경점] 교시 숫자 밑에 시작 시간 추가
+            time_str = START_TIMES.get(period, "")
+            rows += f"<tr><td class='period'>{period}<span class='time-info'>{time_str}</span></td>"
+            
             for day in range(1, 6):
                 data = my_schedule[day][period]
                 if data:
-                    # [변경점] 반 이름으로 색상 가져오기
                     bg_color = get_class_color(data['class'])
                     rows += f"<td style='background-color: {bg_color};'><span class='subject'>{data['subject']}</span><span class='class-info'>{data['class']}</span></td>"
                 else:
@@ -137,11 +163,11 @@ async def get_week_data(school_name, target_teacher, week_num):
     except Exception:
         return None
 
-async def create_colorful_widget():
+async def create_final_widget():
     school = "송양고등학교"
     teacher = "정찬" 
     
-    print(f"🚀 노션 위젯용(컬러) 데이터 수집 중...")
+    print(f"🚀 노션 위젯용(시간표시) 데이터 수집 중...")
 
     tab_buttons_html = ""
     tab_contents_html = ""
@@ -164,7 +190,7 @@ async def create_colorful_widget():
         <div id="week{w}" class="content {is_active}">
             <table>
                 <thead>
-                    <tr><th width="8%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
+                    <tr><th width="10%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
                 </thead>
                 <tbody>{table_rows}</tbody>
             </table>
@@ -179,7 +205,7 @@ async def create_colorful_widget():
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(final_html)
     
-    print("\n✅ 컬러풀한 index.html 파일 생성 완료!")
+    print("\n✅ 시간 정보가 포함된 index.html 파일 생성 완료!")
 
 if __name__ == "__main__":
-    asyncio.run(create_colorful_widget())
+    asyncio.run(create_final_widget())
