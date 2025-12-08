@@ -1,9 +1,8 @@
 import asyncio
 from pycomcigan import TimeTable
-import datetime
 
 # ==========================================
-# HTML 템플릿 (심플 버전)
+# 노션 위젯용 초심플 템플릿
 # ==========================================
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -11,36 +10,108 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 시간표</title>
+    <title>시간표</title>
     <style>
-        body {{ font-family: 'Apple SD Gothic Neo', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }}
-        .container {{ background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 800px; width: 100%; }}
-        
-        /* 제목 스타일 (심플하게) */
-        h1 {{ text-align: center; color: #333; margin-bottom: 20px; font-size: 1.5rem; }}
-        
-        /* 탭 디자인 */
-        .tabs {{ display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }}
-        .tab {{ 
-            padding: 10px 30px; text-align: center; border-radius: 20px; 
-            color: #555; font-weight: bold; background: #eee; cursor: pointer; 
-            transition: 0.3s;
+        /* 노션 위젯에 맞게 여백 제거 및 꽉 채우기 */
+        body {{ 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff; 
+            margin: 0; 
+            padding: 0; 
+            overflow-x: hidden; /* 가로 스크롤 방지 */
         }}
-        .tab.active {{ background: #4a90e2; color: white; box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3); }}
         
-        .content {{ display: none; }}
-        .content.active {{ display: block; animation: fadeIn 0.3s; }}
-        
-        table {{ width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }}
-        th, td {{ border: 1px solid #e1e4e8; padding: 12px 8px; text-align: center; font-size: 0.95rem; }}
-        th {{ background-color: #4a90e2; color: white; }}
-        tr:nth-child(even) {{ background-color: #f8f9fa; }}
-        
-        .period {{ background-color: #edf2f7; font-weight: bold; color: #4a5568; width: 40px; }}
-        .subject {{ font-weight: bold; display: block; color: #2d3748; }}
-        .class-info {{ font-size: 0.8em; color: #718096; display: block; margin-top: 2px; }}
+        .container {{ 
+            width: 100%; 
+            max-width: 100%; 
+            padding: 0;
+        }}
 
-        @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(5px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+        /* 탭 버튼 스타일 (작고 심플하게) */
+        .tabs {{ 
+            display: flex; 
+            border-bottom: 1px solid #e0e0e0;
+            background: #f9f9f9;
+        }}
+        
+        .tab {{ 
+            flex: 1;
+            padding: 8px 0; 
+            text-align: center; 
+            font-size: 13px;
+            color: #666; 
+            cursor: pointer; 
+            transition: 0.2s;
+            border-bottom: 2px solid transparent;
+        }}
+        
+        .tab:hover {{ background: #f0f0f0; }}
+        
+        .tab.active {{ 
+            color: #4a90e2; 
+            font-weight: bold; 
+            border-bottom: 2px solid #4a90e2; 
+            background: white;
+        }}
+        
+        /* 내용 영역 */
+        .content {{ display: none; }}
+        .content.active {{ display: block; }}
+        
+        /* 표 스타일 (컴팩트하게) */
+        table {{ 
+            width: 100%; 
+            border-collapse: collapse; 
+            table-layout: fixed; /* 칸 크기 고정 */
+        }}
+        
+        th {{ 
+            background-color: #f1f3f5; 
+            color: #495057; 
+            font-size: 12px;
+            padding: 6px 2px;
+            border-bottom: 1px solid #dee2e6;
+            border-right: 1px solid #eee;
+        }}
+        
+        td {{ 
+            border-bottom: 1px solid #eee; 
+            border-right: 1px solid #eee;
+            padding: 6px 2px; 
+            text-align: center; 
+            vertical-align: middle;
+            height: 36px; /* 높이 고정으로 균일하게 */
+        }}
+
+        /* 교시 열 스타일 */
+        .period {{ 
+            background-color: #f8f9fa; 
+            color: #868e96; 
+            font-size: 11px;
+            font-weight: bold;
+            width: 30px; /* 교시 칸 작게 */
+        }}
+        
+        /* 과목명 스타일 */
+        .subject {{ 
+            font-size: 13px; 
+            font-weight: 600; 
+            color: #343a40; 
+            display: block; 
+            line-height: 1.2;
+        }}
+        
+        /* 반 정보 스타일 (아주 작게) */
+        .class-info {{ 
+            font-size: 10px; 
+            color: #adb5bd; 
+            display: block; 
+            margin-top: 1px;
+        }}
+        
+        /* 마지막 열 테두리 제거 */
+        th:last-child, td:last-child {{ border-right: none; }}
+
     </style>
     <script>
         function openTab(event, tabId) {{
@@ -58,8 +129,6 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <h1>📅 시간표</h1>
-
         <div class="tabs">
             {tab_buttons}
         </div>
@@ -108,25 +177,24 @@ async def get_week_data(school_name, target_teacher, week_num):
     except Exception:
         return None
 
-async def create_simple_html():
+async def create_widget_html():
     school = "송양고등학교"
     teacher = "정찬" 
     
-    print(f"🚀 '{school}' 데이터 수집 중...")
+    print(f"🚀 노션 위젯용 데이터 수집 중...")
 
     tab_buttons_html = ""
     tab_contents_html = ""
     
-    # 딱 이번주(0), 다음주(1) 두 개만 가져오도록 설정
+    # 2주치만 (0, 1)
     max_weeks = 2 
     
     for w in range(max_weeks):
-        print(f"📡 {w}주차 데이터 요청 중...", end="\r")
+        print(f"📡 {w}주차 확인...", end="\r")
         table_rows = await get_week_data(school, teacher, w)
         
         if table_rows is None:
-            # 데이터가 없으면 '정보 없음' 표시
-            table_rows = "<tr><td colspan='6' style='padding: 30px;'>휴일이거나 시간표 정보가 없습니다.</td></tr>"
+            table_rows = "<tr><td colspan='6' style='padding:20px; font-size:12px; color:#999;'>정보 없음</td></tr>"
             
         tab_label = "이번 주" if w == 0 else "다음 주"
         is_active = "active" if w == 0 else ""
@@ -137,7 +205,7 @@ async def create_simple_html():
         <div id="week{w}" class="content {is_active}">
             <table>
                 <thead>
-                    <tr><th width="10%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
+                    <tr><th width="8%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
                 </thead>
                 <tbody>{table_rows}</tbody>
             </table>
@@ -152,7 +220,7 @@ async def create_simple_html():
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(final_html)
     
-    print("\n✅ 완료! 깔끔한 시간표가 생성되었습니다.")
+    print("\n✅ 위젯용 index.html 파일 생성 완료!")
 
 if __name__ == "__main__":
-    asyncio.run(create_simple_html())
+    asyncio.run(create_widget_html())
