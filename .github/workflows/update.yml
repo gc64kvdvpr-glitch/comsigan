@@ -24,7 +24,7 @@ jobs:
         run: pip install pycomcigan
 
       - name: 시간표 갱신 실행
-        run: python make_html.py
+        run: make_html.py
         
       - name: 결과물 저장 (Commit & Push)
         run: |
