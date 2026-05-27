@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시간표</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff; margin: 0; padding: 0; overflow-x: hidden;
+        }
+        .container { width: 100%; padding: 0; }
+
+        /* 탭 스타일 */
+        .tabs { display: flex; border-bottom: 1px solid #e0e0e0; background: #f9f9f9; }
+        .tab { 
+            flex: 1; padding: 8px 0; text-align: center; font-size: 13px; color: #666; 
+            cursor: pointer; transition: 0.2s; border-bottom: 2px solid transparent; 
+        }
+        .tab:hover { background: #f0f0f0; }
+        .tab.active { color: #4a90e2; font-weight: bold; border-bottom: 2px solid #4a90e2; background: white; }
+        
+        .content { display: none; }
+        .content.active { display: block; }
+        
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        
+        th { 
+            background-color: #f1f3f5; color: #495057; font-size: 12px; padding: 6px 2px;
+            border-bottom: 1px solid #dee2e6; border-right: 1px solid #eee;
+        }
+        
+        td { 
+            border-bottom: 1px solid #eee; border-right: 1px solid #eee;
+            padding: 4px 2px; text-align: center; vertical-align: middle; height: 42px;
+        }
+
+        /* 교시 열 스타일 수정 */
+        .period { 
+            background-color: #f8f9fa; 
+            color: #495057; 
+            font-size: 12px; 
+            font-weight: bold; 
+            width: 35px; 
+            line-height: 1.1; /* 줄 간격 좁게 */
+        }
+        
+        /* 시작 시간 스타일 (추가됨) */
+        .time-info {
+            display: block;
+            font-size: 9px;
+            color: #adb5bd;
+            font-weight: normal;
+            margin-top: 2px;
+        }
+
+        .subject { font-size: 13px; font-weight: 600; color: #333; display: block; line-height: 1.2; }
+        .class-info { font-size: 10px; color: #666; display: block; margin-top: 2px; opacity: 0.8; }
+        
+        th:last-child, td:last-child { border-right: none; }
+    </style>
+    <script>
+        function openTab(event, tabId) {
+            var i, x, tablinks;
+            x = document.getElementsByClassName("content");
+            for (i = 0; i < x.length; i++) { x[i].classList.remove("active"); }
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("active"); }
+            document.getElementById(tabId).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs"><div class="tab active" onclick="openTab(event, 'week0')">이번 주</div><div class="tab " onclick="openTab(event, 'week1')">다음 주</div></div>
+        
+        <div id="week0" class="content active">
+            <table>
+                <thead>
+                    <tr><th width="10%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
+                </thead>
+                <tbody><tr><td class='period'>1<span class='time-info'>09:00</span></td><td></td><td style='background-color: #F9FBE7;'><span class='subject'>영작</span><span class='class-info'>3-4</span></td><td style='background-color: #E3F2FD;'><span class='subject'>통사</span><span class='class-info'>1-2</span></td><td style='background-color: #F1F8E9;'><span class='subject'>영작</span><span class='class-info'>3-2</span></td><td style='background-color: #ECEFF1;'><span class='subject'>영작</span><span class='class-info'>3-3</span></td></tr><tr><td class='period'>2<span class='time-info'>10:00</span></td><td></td><td></td><td></td><td></td><td style='background-color: #F1F8E9;'><span class='subject'>영작</span><span class='class-info'>3-2</span></td></tr><tr><td class='period'>3<span class='time-info'>11:00</span></td><td></td><td></td><td style='background-color: #F9FBE7;'><span class='subject'>영작</span><span class='class-info'>3-4</span></td><td></td><td></td></tr><tr><td class='period'>4<span class='time-info'>12:00</span></td><td></td><td style='background-color: #F1F8E9;'><span class='subject'>영작</span><span class='class-info'>3-2</span></td><td></td><td style='background-color: #ECEFF1;'><span class='subject'>영작</span><span class='class-info'>3-3</span></td><td></td></tr><tr><td class='period'>5<span class='time-info'>13:50</span></td><td></td><td></td><td style='background-color: #FFF3E0;'><span class='subject'>영작</span><span class='class-info'>3-1</span></td><td></td><td style='background-color: #ECEFF1;'><span class='subject'>자율</span><span class='class-info'>3-3</span></td></tr><tr><td class='period'>6<span class='time-info'>14:50</span></td><td></td><td style='background-color: #ECEFF1;'><span class='subject'>영작</span><span class='class-info'>3-3</span></td><td></td><td style='background-color: #F9FBE7;'><span class='subject'>영작</span><span class='class-info'>3-4</span></td><td style='background-color: #ECEFF1;'><span class='subject'>자율</span><span class='class-info'>3-3</span></td></tr><tr><td class='period'>7<span class='time-info'>15:50</span></td><td></td><td style='background-color: #FFF3E0;'><span class='subject'>영작</span><span class='class-info'>3-1</span></td><td></td><td style='background-color: #FFF3E0;'><span class='subject'>영작</span><span class='class-info'>3-1</span></td><td></td></tr></tbody>
+            </table>
+        </div>
+        
+        <div id="week1" class="content ">
+            <table>
+                <thead>
+                    <tr><th width="10%">교시</th><th width="18%">월</th><th width="18%">화</th><th width="18%">수</th><th width="18%">목</th><th width="18%">금</th></tr>
+                </thead>
+                <tbody><tr><td class='period'>1<span class='time-info'>09:00</span></td><td></td><td style='background-color: #F9FBE7;'><span class='subject'>영작</span><span class='class-info'>3-4</span></td><td></td><td style='background-color: #F1F8E9;'><span class='subject'>영작</span><span class='class-info'>3-2</span></td><td style='background-color: #ECEFF1;'><span class='subject'>영작</span><span class='class-info'>3-3</span></td></tr><tr><td class='period'>2<span class='time-info'>10:00</span></td><td style='background-color: #ECEFF1;'><span class='subject'>영작</span><span class='class-info'>3-3</span></td><td></td><td></td><td></td><td style='background-color: #F1F8E9;'><span class='subject'>영작</span><span class='class-info'>3-2</span></td></tr><tr><td class='period'>3<span class='time-info'>11:00</span></td><td style='background-color: #F9FBE7;'><span class='subject'>영작</span><span class='class-info'>3-4</span></td><td></td><td></td><td></td><td></td></tr><tr><td class='period'>4<span class='time-info'>12:00</span></td><td></td><td style='background-color: #F1F8E9;'><span class='subject'>영작</span><span class='class-info'>3-2</span></td><td></td><td style='background-color: #ECEFF1;'><span class='subject'>영작</span><span class='class-info'>3-3</span></td><td></td></tr><tr><td class='period'>5<span class='time-info'>13:50</span></td><td style='background-color: #FFF3E0;'><span class='subject'>영작</span><span class='class-info'>3-1</span></td><td></td><td></td><td></td><td style='background-color: #ECEFF1;'><span class='subject'>동아리</span><span class='class-info'>3-3</span></td></tr><tr><td class='period'>6<span class='time-info'>14:50</span></td><td style='background-color: #F1F8E9;'><span class='subject'>영작</span><span class='class-info'>3-2</span></td><td style='background-color: #ECEFF1;'><span class='subject'>영작</span><span class='class-info'>3-3</span></td><td></td><td style='background-color: #F9FBE7;'><span class='subject'>영작</span><span class='class-info'>3-4</span></td><td style='background-color: #ECEFF1;'><span class='subject'>동아리</span><span class='class-info'>3-3</span></td></tr><tr><td class='period'>7<span class='time-info'>15:50</span></td><td></td><td style='background-color: #FFF3E0;'><span class='subject'>영작</span><span class='class-info'>3-1</span></td><td></td><td style='background-color: #FFF3E0;'><span class='subject'>영작</span><span class='class-info'>3-1</span></td><td style='background-color: #ECEFF1;'><span class='subject'>동아리</span><span class='class-info'>3-3</span></td></tr></tbody>
+            </table>
+        </div>
+        
+    </div>
+</body>
+</html>

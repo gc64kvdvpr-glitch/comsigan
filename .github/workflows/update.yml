@@ -1,0 +1,44 @@
+name: 시간표 자동 업데이트
+
+on:
+  schedule:
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-timetable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v3
+
+      - name: 파이썬 설치
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: 라이브러리 설치
+        run: pip install pycomcigan
+
+      # [중요] 파일 위치 확인용 디버깅 단계 (로그에서 확인 가능)
+      - name: 현재 폴더 파일 목록 확인
+        run: ls -R
+
+      # [중요] python 명령어 추가
+      - name: 시간표 갱신 실행
+        run: python make_html.py
+        
+      - name: 결과물 저장 (Commit & Push)
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "action@github.com"
+          
+          # [추가된 부분] 최신 상태를 먼저 가져옵니다 (충돌 방지)
+          git pull origin main
+          
+          git add index.html
+          git commit -m "시간표 자동 업데이트 완료" || exit 0
+          git push
