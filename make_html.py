@@ -5,6 +5,13 @@ import requests
 from typing import List
 from pycomcigan.timetable import TimeTable, TimeTableData, Lecture
 
+
+REQUEST_TIMEOUT_SECONDS = 20
+
+
+class TimetableFetchError(RuntimeError):
+    """Raised when Comcigan cannot provide usable timetable data."""
+
 # ==========================================
 # 🔧 Comcigan API Monkey Patches for Stability
 # ==========================================
@@ -14,7 +21,8 @@ def patched_get_comcigan_codes() -> tuple:
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'
     }
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT_SECONDS)
+    response.raise_for_status()
     response.encoding = 'euc-kr'
     content = response.text
     
@@ -42,7 +50,11 @@ def patched_get_comcigan_codes() -> tuple:
     code5_match = re.search(r'원자료=Q자료\(자료\.자료([0-9]+)', content)
     code5 = code5_match.group(1) if code5_match else ""
     
-    return comcigan_code, code0, code1, code2, code3, code4, code5
+    codes = (comcigan_code, code0, code1, code2, code3, code4, code5)
+    if not all(codes):
+        raise TimetableFetchError("컴시간 서비스 코드 형식을 읽지 못했습니다.")
+
+    return codes
 
 def clean_period_val(val) -> int:
     if isinstance(val, str):
@@ -244,7 +256,8 @@ async def get_week_data(school_name, target_teacher, week_num):
                             }
                             has_data = True
 
-        if not has_data: return None
+        if not has_data:
+            return None
 
         rows = ""
         for period in range(1, 8):
@@ -262,8 +275,10 @@ async def get_week_data(school_name, target_teacher, week_num):
             rows += "</tr>"
         return rows
 
-    except Exception:
-        return None
+    except Exception as exc:
+        raise TimetableFetchError(
+            f"{week_num}주차 시간표를 불러오지 못했습니다: {exc}"
+        ) from exc
 
 async def create_final_widget():
     school = "송양고등학교"
@@ -275,6 +290,7 @@ async def create_final_widget():
     tab_contents_html = ""
     
     max_weeks = 2 
+    weeks_with_data = 0
     
     for w in range(max_weeks):
         print(f"[RUNNING] {w}주차 확인...", end="\r")
@@ -282,6 +298,8 @@ async def create_final_widget():
         
         if table_rows is None:
             table_rows = "<tr><td colspan='6' style='padding:20px; font-size:12px; color:#999;'>정보 없음</td></tr>"
+        else:
+            weeks_with_data += 1
             
         tab_label = "이번 주" if w == 0 else "다음 주"
         is_active = "active" if w == 0 else ""
@@ -299,6 +317,11 @@ async def create_final_widget():
         </div>
         """
 
+    # Do not replace the published page with an empty one when Comcigan has not
+    # released a new semester's data yet (or is temporarily unavailable).
+    if weeks_with_data == 0:
+        raise TimetableFetchError("이번 주와 다음 주 시간표가 모두 비어 있습니다.")
+
     final_html = HTML_TEMPLATE.format(
         tab_buttons=tab_buttons_html,
         tab_contents=tab_contents_html
@@ -311,3 +334,4 @@ async def create_final_widget():
 
 if __name__ == "__main__":
     asyncio.run(create_final_widget())
+
