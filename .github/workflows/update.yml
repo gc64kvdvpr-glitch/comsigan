@@ -2,9 +2,9 @@ name: 시간표 자동 업데이트
 
 on:
   schedule:
-    # Korea time: 09:00 and 15:00.  Run twice so a temporary Comcigan outage
-    # does not leave the widget stale for a full day.
-    - cron: '0 0,6 * * *'
+    # Korea time: 11:00 and 15:00.  Comcigan can publish a new week's data
+    # after 09:00 on Monday, so avoid capturing the previous week's payload.
+    - cron: '0 2,6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -39,4 +39,3 @@ jobs:
           git add index.html
           git commit -m "시간표 자동 업데이트 완료" || exit 0
           git push
-
