@@ -23,7 +23,10 @@ jobs:
           python-version: '3.9'
 
       - name: 라이브러리 설치
-        run: pip install --upgrade pycomcigan requests
+        run: pip install pycomcigan==1.4.0 requests
+
+      - name: 설치 버전 확인
+        run: python -m pip show pycomcigan
 
       - name: 시간표 갱신 실행
         run: python make_html.py
