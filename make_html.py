@@ -53,23 +53,23 @@ def patched_get_comcigan_codes() -> tuple:
     codes = (comcigan_code, code0, code1, code2, code3, code4, code5)
 
 # 디버그: 어떤 코드 추출에 실패했는지 확인
-print("[DEBUG] HTTP 상태:", response.status_code)
-print("[DEBUG] 응답 길이:", len(content))
-print("[DEBUG] comcigan_code:", bool(comcigan_code))
-print("[DEBUG] code0:", bool(code0))
-print("[DEBUG] code1:", bool(code1))
-print("[DEBUG] code2:", bool(code2))
-print("[DEBUG] code3:", bool(code3))
-print("[DEBUG] code4:", bool(code4))
-print("[DEBUG] code5:", bool(code5))
+    print("[DEBUG] HTTP 상태:", response.status_code)
+    print("[DEBUG] 응답 길이:", len(content))
+    print("[DEBUG] comcigan_code:", bool(comcigan_code))
+    print("[DEBUG] code0:", bool(code0))
+    print("[DEBUG] code1:", bool(code1))
+    print("[DEBUG] code2:", bool(code2))
+    print("[DEBUG] code3:", bool(code3))
+    print("[DEBUG] code4:", bool(code4))
+    print("[DEBUG] code5:", bool(code5))
 
-if not all(codes):
-    print("[DEBUG] 서버 응답 앞부분:", repr(content[:500]))
-    raise TimetableFetchError(
-        "컴시간 서비스 코드 형식을 읽지 못했습니다."
-    )
-
-return codes
+    if not all(codes):
+        print("[DEBUG] 서버 응답 앞부분:", repr(content[:500]))
+        raise TimetableFetchError(
+            "컴시간 서비스 코드 형식을 읽지 못했습니다."
+        )
+    
+    return codes
 
 def clean_period_val(val) -> int:
     if isinstance(val, str):
