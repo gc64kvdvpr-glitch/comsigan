@@ -127,8 +127,6 @@ def patched_create_period_data(period: int, day: int, class_data: List,
         original=original_lecture
     )
 
-TimeTable._get_comcigan_codes = staticmethod(patched_get_comcigan_codes)
-TimeTable._create_period_data = staticmethod(patched_create_period_data)
 
 
 # ==========================================
