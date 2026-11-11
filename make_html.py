@@ -17,52 +17,43 @@ class TimetableFetchError(RuntimeError):
 # ==========================================
 
 def patched_get_comcigan_codes() -> tuple:
-    # 최신 컴시간 메인 URL 및 엔드포인트 대응
     url = 'http://comci.net:4082/st'
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'
     }
-    
     response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT_SECONDS)
+    response.raise_for_status()
     response.encoding = 'euc-kr'
     content = response.text
-
-    # 4082 포트 실패 시 메인 도메인 재시도
-    if "컴시간" not in content and response.status_code != 200:
-        url = 'http://comci.kr/st'
-        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT_SECONDS)
-        response.encoding = 'euc-kr'
-        content = response.text
-
-    # 유연한 정규식 추출 패턴
-    comcigan_code_match = re.search(r'\./[0-9]+\?[0-9]+l?', content)
+    
+    comcigan_code_match = re.search(r'\./[0-9]+\?[0-9]+l', content)
     comcigan_code = comcigan_code_match.group(0)[1:] if comcigan_code_match else ""
     
-    code0_match = re.search(r"sc_data\('([0-9]+)_", content) or re.search(r"sc_data\('([0-9]+)", content)
+    code0_match = re.search(r"sc_data\('([0-9]+)_", content)
     code0 = code0_match.group(1) if code0_match else ""
     
-    code1_match = re.search(r'성명=(?:Q성명\()?자료\.자료([0-9]+)', content) or re.search(r'자료\.자료([0-9]+)', content)
+    code1_match = re.search(r'성명=(?:Q성명\()?자료\.자료([0-9]+)', content)
     code1 = code1_match.group(1) if code1_match else ""
-    
-    code2_match = re.search(r'자료\.자료([0-9]+)\[sb\]', content) or re.search(r'\[sb\]', content)
-    code2 = code2_match.group(1) if code2_match else "1"
+    if not code1:
+        code1_backup = re.search(r'성명=자료\.자료([0-9]+)', content)
+        code1 = code1_backup.group(1) if code1_backup else ""
+        
+    code2_match = re.search(r'자료\.자료([0-9]+)\[sb\]', content)
+    code2 = code2_match.group(1) if code2_match else ""
     
     code3_match = re.search(r'=H시간표\.자료([0-9]+)', content)
-    code3 = code3_match.group(1) if code3_match else "1"
+    code3 = code3_match.group(1) if code3_match else ""
     
     code4_match = re.search(r'일일자료=Q자료\(자료\.자료([0-9]+)', content)
-    code4 = code4_match.group(1) if code4_match else "1"
+    code4 = code4_match.group(1) if code4_match else ""
     
     code5_match = re.search(r'원자료=Q자료\(자료\.자료([0-9]+)', content)
-    code5 = code5_match.group(1) if code5_match else "1"
-
-    codes = (comcigan_code, code0, code1, code2, code3, code4, code5)
-
-    if not comcigan_code or not code0:
-        raise TimetableFetchError(
-            f"컴시간 서비스 코드 추출 실패 (응답 길이: {len(content)})"
-        )
+    code5 = code5_match.group(1) if code5_match else ""
     
+    codes = (comcigan_code, code0, code1, code2, code3, code4, code5)
+    if not all(codes):
+        raise TimetableFetchError("컴시간 서비스 코드 형식을 읽지 못했습니다.")
+
     return codes
 
 def clean_period_val(val) -> int:
@@ -121,6 +112,8 @@ def patched_create_period_data(period: int, day: int, class_data: List,
         original=original_lecture
     )
 
+TimeTable._get_comcigan_codes = staticmethod(patched_get_comcigan_codes)
+TimeTable._create_period_data = staticmethod(patched_create_period_data)
 
 
 # ==========================================
@@ -339,10 +332,5 @@ async def create_final_widget():
     
     print("\n[SUCCESS] 시간 정보가 포함된 index.html 파일 생성 완료!")
 
-
-TimeTable._get_comcigan_codes = staticmethod(patched_get_comcigan_codes)
-TimeTable._create_period_data = staticmethod(patched_create_period_data)
-
 if __name__ == "__main__":
     asyncio.run(create_final_widget())
-
