@@ -3,7 +3,7 @@ import datetime
 import re
 import requests
 from typing import List
-from pycomcigan.timetable import TimeTable, TimeTableData, Lecture
+from pycomcigan.timetable import TimeTable
 
 
 REQUEST_TIMEOUT_SECONDS = 20
@@ -111,9 +111,6 @@ def patched_create_period_data(period: int, day: int, class_data: List,
         replaced=current_period_raw != original_period_raw,
         original=original_lecture
     )
-
-TimeTable._get_comcigan_codes = staticmethod(patched_get_comcigan_codes)
-TimeTable._create_period_data = staticmethod(patched_create_period_data)
 
 
 # ==========================================
