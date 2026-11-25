@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: timetable-update
+  cancel-in-progress: false
+  
 jobs:
   update-timetable:
     runs-on: ubuntu-24.04
