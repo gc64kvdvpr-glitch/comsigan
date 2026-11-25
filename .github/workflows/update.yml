@@ -35,10 +35,11 @@ jobs:
         run: |
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
-          
-          # [추가된 부분] 최신 상태를 먼저 가져옵니다 (충돌 방지)
-          git pull origin main
-          
+
           git add index.html
           git commit -m "시간표 자동 업데이트 완료" || exit 0
+
+          # 그사이 원격에 올라온 변경을 받아와서 내 커밋을 그 위에 얹기
+          # index.html이 충돌하면 방금 만든 최신 시간표를 우선
+          git pull --rebase -X theirs origin main
           git push
